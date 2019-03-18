@@ -1,0 +1,90 @@
+Vagrant.configure("2") do |config|
+
+disk_drbd_1 = '/root/drbd/drbd1.vmdk'
+disk_drbd_2 = '/root/drbd/drbd2.vmdk'
+ansible_debian = '/home/user/ansible/base_apt.yml'
+#network_interface = 'wlo1'
+network_interface = 'Realtek PCIe GBE Family Controller'
+
+config.vm.define "d1" do |d1|
+d1.vm.box = "debian/stretch64"
+d1.vm.hostname = "d1"
+config.vm.provider "virtualbox" do |v, override|
+	v.memory = 512
+	v.cpus = 1
+  unless File.exist?(disk_drbd_1)
+      v.customize ['createmedium', '--filename', disk_drbd_1, '--size', 1 * 1024, '--format', 'VMDK']
+  end
+	v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk_drbd_1]
+end
+d1.vm.network "public_network", bridge: network_interface, ip: "192.168.1.101"
+d1.vm.provision "ansible" do |ansible|
+  ansible.playbook = ansible_debian
+end
+d1.vm.provision "file", source: "sshd_config", destination: "/vagrant/sshd_config"
+d1.vm.provision "file", source: "hosts", destination: "/vagrant/hosts"
+d1.vm.provision "shell",
+path: "run_debian.sh"
+end
+
+config.vm.define "ansible27" do |ansible27|
+ansible27.vm.box = "debian/stretch64"
+ansible27.vm.hostname = "ansible27"
+config.vm.provider "virtualbox" do |v, override|
+  v.memory = 512
+  v.cpus = 1
+end
+ansible27.vm.network "public_network", bridge: network_interface
+ansible27.vm.provision "shell",
+path: "run_ansible27.sh"
+end
+
+config.vm.define "deb1" do |deb1|
+deb1.vm.box = "debian/stretch64"
+deb1.vm.hostname = "deb1"
+config.vm.provider "virtualbox" do |v, override|
+  v.memory = 1000
+  v.cpus = 1
+end
+deb1.vm.network "public_network", bridge: network_interface
+deb1.vm.provision "shell",
+path: "run_debian_all.sh"
+end
+
+config.vm.define "deb2" do |deb2|
+deb2.vm.box = "debian/stretch64"
+#deb2.vm.box = "debian/jessie64"
+deb2.vm.hostname = "deb2"
+config.vm.provider "virtualbox" do |v, override|
+  v.memory = 1000
+  v.cpus = 1
+end
+deb2.vm.network "public_network", bridge: network_interface
+deb2.vm.provision "shell",
+path: "run_debian_all.sh"
+end
+
+config.vm.define "ol7" do |ol7|
+ol7.vm.box = "generic/oracle7"
+ol7.vm.hostname = "ol7"
+ol7.vm.provider "virtualbox" do |v, override|
+  v.memory = 4000
+  v.cpus = 2
+end
+ol7.vm.network "public_network", bridge: network_interface
+end
+
+config.vm.define "centos" do |centos|
+centos.vm.box = "centos/7"
+centos.vm.hostname = "centos"
+centos.vm.provider "virtualbox" do |v, override|
+  v.memory = 4000
+  v.cpus = 2
+end
+centos.vm.network "public_network", bridge: network_interface
+centos.vm.provision "shell",
+path: "run_centos.sh"
+end
+
+
+end
