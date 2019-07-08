@@ -64,14 +64,17 @@ deb2.vm.provision "shell",
 path: "run_debian_all.sh"
 end
 
-config.vm.define "ol7" do |ol7|
-ol7.vm.box = "generic/oracle7"
-ol7.vm.hostname = "ol7"
-ol7.vm.provider "virtualbox" do |v, override|
-  v.memory = 4000
-  v.cpus = 2
+config.vm.define "ovpn" do |ovpn|
+ovpn.vm.box = "debian/stretch64"
+#deb2.vm.box = "debian/jessie64"
+ovpn.vm.hostname = "ovpn"
+config.vm.provider "virtualbox" do |v, override|
+  v.memory = 500
+  v.cpus = 1
 end
-ol7.vm.network "public_network", bridge: network_interface
+ovpn.vm.network "public_network", bridge: network_interface
+ovpn.vm.provision "shell",
+path: "run_debian_all.sh"
 end
 
 config.vm.define "centos" do |centos|
