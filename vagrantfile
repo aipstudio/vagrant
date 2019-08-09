@@ -15,7 +15,7 @@ config.vm.provider "virtualbox" do |v, override|
   unless File.exist?(disk_drbd_1)
       v.customize ['createmedium', '--filename', disk_drbd_1, '--size', 1 * 1024, '--format', 'VMDK']
   end
-	v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk_drbd_1]
+	#v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk_drbd_1]
 end
 d1.vm.network "public_network", bridge: network_interface, ip: "192.168.1.101"
 d1.vm.provision "ansible" do |ansible|
@@ -65,14 +65,15 @@ path: "run_debian_all.sh"
 end
 
 config.vm.define "ovpn" do |ovpn|
-ovpn.vm.box = "debian/stretch64"
+ovpn.vm.box = "generic/debian10"
 #deb2.vm.box = "debian/jessie64"
 ovpn.vm.hostname = "ovpn"
 config.vm.provider "virtualbox" do |v, override|
   v.memory = 500
   v.cpus = 1
 end
-ovpn.vm.network "public_network", bridge: network_interface
+#ovpn.vm.network "public_network", bridge: network_interface
+ovpn.vm.network "public_network", bridge: network_interface, ip: "10.55.10.116", netmask:"255.255.254.0", gateway: "10.55.10.1"
 ovpn.vm.provision "shell",
 path: "run_debian_all.sh"
 end
