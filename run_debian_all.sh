@@ -1,6 +1,6 @@
 #!/bin/bash
-sudo apt-get update
-sudo apt-get install -y atop htop mc net-tools ntpdate #lnav cifs-utils
+sudo apt update
+sudo apt install -y atop htop mc net-tools ntpdate lnav cifs-utils open-vm-tools
 
 sudo cp /vagrant/sshd_config /etc/ssh/
 sudo cp /vagrant/hosts /etc/hosts
